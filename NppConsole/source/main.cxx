@@ -201,11 +201,15 @@ void setInfo(NppData nppData)
 	}
 	IFV(ERROR_SUCCESS!=RegCloseKey(conKey));
 	IFV(!g_tbData.hClient);
-	g_tbData.uMask = DWS_DF_CONT_BOTTOM;
+	g_tbData.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 	::GetModuleFileNameA((HINSTANCE)g_hModule, modName, MAX_PATH);
 	g_tbData.pszModuleName = modName;
     g_tbData.dlgID = g_showWndInd;
 	g_tbData.pszName=g_plgName;	
+	g_tbData.hIconTab = ( HICON )::LoadImage( (HINSTANCE)g_hModule,
+		MAKEINTRESOURCE( IDI_APPICON ), IMAGE_ICON, 0, 0,
+		LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT );
+
 }
 
 extern "C" __declspec(dllexport) 
