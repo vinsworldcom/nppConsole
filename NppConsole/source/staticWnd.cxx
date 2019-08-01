@@ -317,7 +317,9 @@ void CStaticWnd::Show(bool notifyPar)
 	if(s_oldHookMouse) UnhookWindowsHookEx(s_oldHookMouse);
 	if(s_oldHookKeyBoard) UnhookWindowsHookEx(s_oldHookKeyBoard);
 	IFV(!(s_oldHookMouse=SetWindowsHookEx(WH_MOUSE_LL, MouseProc, (HINSTANCE)g_hModule, 0)));
-	IFV(!(s_oldHookKeyBoard=SetWindowsHookEx(WH_KEYBOARD_LL, KeyBoardProc, (HINSTANCE)g_hModule, 0)));
+    if(m_ctrlCAction != CStaticWnd::CTRL_C_PROCESS) {
+	   IFV(!(s_oldHookKeyBoard=SetWindowsHookEx(WH_KEYBOARD_LL, KeyBoardProc, (HINSTANCE)g_hModule, 0)));
+    }
 
 	ShowWindow(m_hConWnd, SW_SHOW);
 	ShowWindow(s_hWnd, SW_SHOW);

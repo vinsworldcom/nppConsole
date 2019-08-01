@@ -89,6 +89,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			if (g_ctrlCaction == CStaticWnd::CTRL_C_IGNORE) {
 				CheckDlgButton(hwndDlg, IDC_RADIO_IGN, BST_CHECKED);
 			}
+			else if (g_ctrlCaction == CStaticWnd::CTRL_C_PROCESS) {
+				CheckDlgButton(hwndDlg, IDC_RADIO_PROCESS, BST_CHECKED);
+			}
 			else {
 				CheckDlgButton(hwndDlg, IDC_RADIO_RESTR, BST_CHECKED);
 			}
@@ -117,6 +120,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 					SLog("g_savedLine: "<<g_savedLine);
 					if (BST_CHECKED == IsDlgButtonChecked(hwndDlg, IDC_RADIO_IGN)) {
 						g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
+					}
+					else if (BST_CHECKED == IsDlgButtonChecked(hwndDlg, IDC_RADIO_PROCESS)) {
+						g_ctrlCaction = CStaticWnd::CTRL_C_PROCESS;
 					}
 					else {
 						g_ctrlCaction = CStaticWnd::CTRL_C_RECREATE;

@@ -63,7 +63,8 @@ public:
 	enum
 	{
 		CTRL_C_IGNORE 	= 0,
-		CTRL_C_RECREATE
+		CTRL_C_RECREATE,
+		CTRL_C_PROCESS
 	};
 	CStaticWnd();
 	~CStaticWnd();
