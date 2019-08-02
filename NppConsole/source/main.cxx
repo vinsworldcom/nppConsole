@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resources.hxx"
 
 
-#define PLG_FUNCS_COUNT 3
+#define PLG_FUNCS_COUNT 4
 
 HANDLE			g_hModule=NULL;
 TCHAR			g_plgName[]=_T("NppConsole");
@@ -146,6 +146,11 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 	return FALSE;
 }
 
+void menuRestart()
+{
+    g_staticWnd.Restart(g_savedCmd, g_savedLine);
+}
+
 void AboutPlugin()
 {
 	DialogBoxParam((HINSTANCE)g_hModule,  MAKEINTRESOURCE(IDD_DIALOG_ABOUT), 
@@ -227,9 +232,13 @@ const TCHAR * getName()
 extern "C" __declspec(dllexport) 
 FuncItem * getFuncsArray(int *count)
 {
-	g_funcItem[2]._pFunc=AboutPlugin;
-	_tcscpy(g_funcItem[2]._itemName, _T("About..."));
+	g_funcItem[2]._pFunc=menuRestart;
+	_tcscpy(g_funcItem[2]._itemName, _T("Restart Console"));
 	g_funcItem[2]._pShKey=NULL;
+
+	g_funcItem[3]._pFunc=AboutPlugin;
+	_tcscpy(g_funcItem[3]._itemName, _T("About..."));
+	g_funcItem[3]._pShKey=NULL;
 
 	g_funcItem[g_showWndInd]._pFunc=ShowPlugin;
 	_tcscpy(g_funcItem[g_showWndInd]._itemName, _T("Show NppConsole"));
