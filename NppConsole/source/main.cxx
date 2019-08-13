@@ -36,6 +36,7 @@ CStaticWnd		g_staticWnd;
 TCHAR			g_savedCmd[MAX_PATH]={0};
 TCHAR			g_savedLine[MAX_PATH]={0};
 int				g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
+bool            g_consoleRestart = true;
 
 toolbarIcons	g_ToolBar={0};
 
@@ -149,6 +150,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 void menuRestart()
 {
     g_staticWnd.Restart(g_savedCmd, g_savedLine);
+    g_consoleRestart = false;
 }
 
 void AboutPlugin()
@@ -175,6 +177,9 @@ void ShowPlugin()
 		g_staticWnd.Show();
 	}
 	::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, !(state&MF_CHECKED));
+
+    if ( g_consoleRestart )
+        menuRestart();
 }
 
 extern "C" __declspec(dllexport) 
