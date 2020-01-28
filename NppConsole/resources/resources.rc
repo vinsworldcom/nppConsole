@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
 1 VERSIONINFO
- FILEVERSION 1,2,3,1
- PRODUCTVERSION 1,2,3,1
+ FILEVERSION 1,2,4,1
+ PRODUCTVERSION 1,2,4,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,12 +46,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Free software"
             VALUE "FileDescription", "Notepad++ console plugin."
-            VALUE "FileVersion", "1.2.3.1"
+            VALUE "FileVersion", "1.2.4.1"
             VALUE "InternalName", "NppConsole"
-            VALUE "LegalCopyright", "(C)2012 Mykhajlo Pobojnyj, 2019, VinsWorldcom"
+            VALUE "LegalCopyright", "(C)2012 Mykhajlo Pobojnyj"
             VALUE "OriginalFilename", "NppConsole.dll"
             VALUE "ProductName", "Notepad++ console plugin."
-            VALUE "ProductVersion", "1.2.3.1"
+            VALUE "ProductVersion", "1.2.4.1"
         END
     END
     BLOCK "VarFileInfo"

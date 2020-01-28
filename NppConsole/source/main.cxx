@@ -163,10 +163,11 @@ void ShowPlugin()
 {
 	static bool wndFlag=false;
 	IFV(!g_nppData._nppHandle);
-	HMENU hMenu = ::GetMenu(g_nppData._nppHandle);
-	UINT state = ::GetMenuState(hMenu, g_funcItem[g_showWndInd]._cmdID, MF_BYCOMMAND);
-	if (state & MF_CHECKED) {
+	// HMENU hMenu = ::GetMenu(g_nppData._nppHandle);
+	// UINT state = ::GetMenuState(hMenu, g_funcItem[g_showWndInd]._cmdID, MF_BYCOMMAND);
+	if (g_staticWnd.isWindowVisible()) {
 		g_staticWnd.Hide();
+		::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, MF_UNCHECKED);
 	}
 	else {
 		if (!wndFlag) {
@@ -175,8 +176,8 @@ void ShowPlugin()
 			
 		}
 		g_staticWnd.Show();
+		::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, MF_CHECKED);
 	}
-	::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, !(state&MF_CHECKED));
 
     if ( g_consoleRestart )
         menuRestart();

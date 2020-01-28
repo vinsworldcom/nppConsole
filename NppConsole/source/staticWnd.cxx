@@ -342,6 +342,11 @@ void CStaticWnd::Hide(bool notifyPar)
 	m_showFlag = SW_HIDE;
 }
 
+BOOL CStaticWnd::isWindowVisible()
+{
+    return ::IsWindowVisible(s_hWnd);
+}
+
 void CStaticWnd::ProcessConsoleDBClick(UINT ptX, UINT ptY)
 {
 	SLog(__FUNCTION__);
