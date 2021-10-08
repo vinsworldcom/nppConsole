@@ -63,11 +63,15 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 							WPARAM wParam, LPARAM lParam)
 {
 	static LPCTSTR aboutText=_T("NppConsole is a workaround for windows console.\r\n")
-		_T("After double click in the console window, it will activate the document")
-		_T(" with the name found\r\nin the clicked line.\r\n")
-		_T("The string after command line in the form ${hier are the parametrs}, will as parametrs\r\nfor command line interpreted.\r\n")
-		_T("You can specify a pattern for line number to search after the file name. String ${LINE}\r\nis placeholder for found line number.")
-		_T("\r\n\r\nWith best regards, M.Pobojnyj (mpoboyny@web.de)\r\n");
+		_T("Double click in console window, will activate the named document.\r\n")
+		_T("String after command line of form ${parameters}, will be sent as parameters.\r\n")
+		_T("Pattern for line number search after file name: ${LINE}\r\n")
+		_T("\r\n")
+        _T("C:\\Windows\\System32\\cmd.exe\r\n")
+        _T("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\r\n")
+        _T("C:\\Windows\\System32\\wsl.exe\r\n")
+		_T("\r\n")
+        _T("With best regards, M.Pobojnyj (mpoboyny@web.de)\r\n");
 	static int xScreen=GetSystemMetrics(SM_CXSCREEN);
 	static int yScreen=GetSystemMetrics(SM_CYSCREEN);
 
@@ -239,15 +243,15 @@ extern "C" __declspec(dllexport)
 FuncItem * getFuncsArray(int *count)
 {
 	g_funcItem[2]._pFunc=menuRestart;
-	_tcscpy(g_funcItem[2]._itemName, _T("Restart Console"));
+	_tcscpy(g_funcItem[2]._itemName, _T("&Restart Console"));
 	g_funcItem[2]._pShKey=NULL;
 
 	g_funcItem[3]._pFunc=AboutPlugin;
-	_tcscpy(g_funcItem[3]._itemName, _T("About..."));
+	_tcscpy(g_funcItem[3]._itemName, _T("&Settings"));
 	g_funcItem[3]._pShKey=NULL;
 
 	g_funcItem[g_showWndInd]._pFunc=ShowPlugin;
-	_tcscpy(g_funcItem[g_showWndInd]._itemName, _T("Show NppConsole"));
+	_tcscpy(g_funcItem[g_showWndInd]._itemName, _T("&NppConsole Show"));
 	g_funcItem[g_showWndInd]._pShKey=NULL;
 
 	*count=PLG_FUNCS_COUNT;
