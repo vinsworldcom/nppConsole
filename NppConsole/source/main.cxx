@@ -229,7 +229,7 @@ void setInfo(NppData nppData)
 	g_tbData.pszName=g_plgName;	
 	g_tbData.hIconTab = ( HICON )::LoadImage( (HINSTANCE)g_hModule,
 		MAKEINTRESOURCE( IDI_APPICON ), IMAGE_ICON, 0, 0,
-		LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT );
+		LR_LOADTRANSPARENT );
 
 }
 
@@ -263,7 +263,7 @@ void beNotified(SCNotification *notifyCode)
 {
 	if (notifyCode->nmhdr.hwndFrom == g_nppData._nppHandle) {
 		if (notifyCode->nmhdr.code == NPPN_TBMODIFICATION) {
-			g_ToolBar.hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDB_TLB_IMG), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+			g_ToolBar.hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDB_TLB_IMG), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE);
 			IFV(!g_ToolBar.hToolbarBmp);
 			::SendMessage(g_nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)g_funcItem[g_showWndInd]._cmdID, (LPARAM)&g_ToolBar);
 		}
