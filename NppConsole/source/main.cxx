@@ -22,8 +22,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "staticWnd.hxx"
 #include "resources.hxx"
 
+#include <shlwapi.h>
 
 #define PLG_FUNCS_COUNT 4
+#define NUMDIGIT        64
+
+void pluginCleanUp();
+
+const TCHAR configFileName[]    = TEXT( "NppConsole.ini" );
+const TCHAR sectionName[]       = TEXT( "Console" );
+const TCHAR iniKeyCommand[]     = TEXT( "Command" );
+const TCHAR iniKeyLinePattern[] = TEXT( "LinePattern" );
+const TCHAR iniKeyCtrlCAction[] = TEXT( "CtrlCAction" );
+TCHAR iniFilePath[MAX_PATH];
 
 HANDLE			g_hModule=NULL;
 TCHAR			g_plgName[]=_T("NppConsole");
@@ -48,7 +59,7 @@ BOOL APIENTRY DllMain( HANDLE hModule, DWORD  reasonForCall, LPVOID lpReserved )
 		case DLL_PROCESS_ATTACH:
 			break;
 		case DLL_PROCESS_DETACH:
-			if (g_ToolBar.hToolbarBmp) ::DeleteObject(g_ToolBar.hToolbarBmp);
+            pluginCleanUp();
 			break;
 		case DLL_THREAD_ATTACH:
 			break;
@@ -106,21 +117,21 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			switch (wParam) {
 				case IDC_BUTTON_APPLY:
 				{
-					HKEY conKey=NULL;
-					DWORD dispos=0;
+					// HKEY conKey=NULL;
+					// DWORD dispos=0;
 					TCHAR cmd[MAX_PATH]={0};
 					int cc=GetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_LINE), cmd, MAX_PATH);
-					IFR(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos), TRUE);
-					if (ERROR_SUCCESS==RegSetValueEx(conKey, _T("LinePattern"), 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
+					// IFR(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos), TRUE);
+					// if (ERROR_SUCCESS==RegSetValueEx(conKey, _T("LinePattern"), 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
 						if (cc>0) memcpy(g_savedLine, cmd, MAX_PATH*sizeof(TCHAR));
 						else memset(g_savedLine, 0, MAX_PATH*sizeof(TCHAR));
-					}
+					// }
 					memset(cmd, 0, MAX_PATH*sizeof(TCHAR));
 					cc=GetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_CMD), cmd, MAX_PATH);
-					if (ERROR_SUCCESS==RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
+					// if (ERROR_SUCCESS==RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
 						if (cc>0) memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
 						else memset(g_savedCmd, 0, MAX_PATH*sizeof(TCHAR));
-					}
+					// }
 					SLog("g_savedCmd: "<<g_savedCmd);
 					SLog("g_savedLine: "<<g_savedLine);
 					if (BST_CHECKED == IsDlgButtonChecked(hwndDlg, IDC_RADIO_IGN)) {
@@ -132,11 +143,11 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 					else {
 						g_ctrlCaction = CStaticWnd::CTRL_C_RECREATE;
 					}
-					if (ERROR_SUCCESS!=RegSetValueEx(conKey, _T("CtrlCAction"), 0, REG_DWORD, (LPBYTE)&g_ctrlCaction, sizeof(g_ctrlCaction))) {
-						g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
-					}
+					// if (ERROR_SUCCESS!=RegSetValueEx(conKey, _T("CtrlCAction"), 0, REG_DWORD, (LPBYTE)&g_ctrlCaction, sizeof(g_ctrlCaction))) {
+						// g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
+					// }
 					g_staticWnd.SetCtrlCAction(g_ctrlCaction);
-					RegCloseKey(conKey);
+					// RegCloseKey(conKey);
 					IFR(!g_staticWnd.Restart(g_savedCmd, g_savedLine), TRUE);
 				}
 					return TRUE;
@@ -187,29 +198,63 @@ void ShowPlugin()
         menuRestart();
 }
 
+void pluginCleanUp()
+{
+    TCHAR buf[NUMDIGIT];
+
+    ::WritePrivateProfileString( sectionName, iniKeyCommand, 
+                                 g_savedCmd, iniFilePath);
+    ::WritePrivateProfileString( sectionName, iniKeyLinePattern, 
+                                 g_savedLine, iniFilePath);
+    _itot_s( g_ctrlCaction, buf, NUMDIGIT, 10 );
+    ::WritePrivateProfileString( sectionName, iniKeyCtrlCAction, buf,
+                                 iniFilePath );
+
+    if (g_ToolBar.hToolbarBmp) ::DeleteObject(g_ToolBar.hToolbarBmp);
+}
+
 extern "C" __declspec(dllexport) 
 void setInfo(NppData nppData)
 {
 	SLog(__FUNCTION__);
 	char modName[MAX_PATH] = {0};
 	g_nppData=nppData;
-	HKEY conKey=NULL;
+
+    // get path of plugin configuration
+    ::SendMessage( nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH,
+                   ( LPARAM )iniFilePath );
+
+    // if config path doesn't exist, we create it
+    if ( PathFileExists( iniFilePath ) == FALSE )
+        ::CreateDirectory( iniFilePath, NULL );
+
+    // make your plugin config file full file path name
+    PathAppend( iniFilePath, configFileName );
+    g_ctrlCaction = ::GetPrivateProfileInt( sectionName, iniKeyCtrlCAction,
+                                            0, iniFilePath );
+    ::GetPrivateProfileString( sectionName, iniKeyCommand, TEXT("C:\\Windows\\System32\\cmd.exe"), 
+                               g_savedCmd, MAX_PATH, iniFilePath );
+    ::GetPrivateProfileString( sectionName, iniKeyLinePattern, TEXT(""), 
+                               g_savedLine, MAX_PATH, iniFilePath );
+
+	// HKEY conKey=NULL;
 	TCHAR cmd[MAX_PATH]={0}, sysDir[MAX_PATH]={0};
-	DWORD dispos=0, pdwType=0, pcbData=MAX_PATH*sizeof(TCHAR);
-	IFV(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos));
-	if (ERROR_SUCCESS!=RegQueryValueEx(conKey, NULL, 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
-		if (GetSystemDirectory(sysDir,MAX_PATH) && 0<_stprintf(cmd, _T("%s\\cmd.exe"), sysDir)) {
-			RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR));
-		}
-	}
-	::memcpy(g_savedCmd, cmd, pcbData);
-	pcbData=MAX_PATH*sizeof(TCHAR);
-	if (ERROR_SUCCESS==RegQueryValueEx(conKey, _T("LinePattern"), 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
-		::memcpy(g_savedLine, cmd, pcbData);
-	}
-	pcbData = sizeof(g_ctrlCaction);
-	pdwType = REG_DWORD;
-	RegQueryValueEx(conKey, _T("CtrlCAction"), 0, &pdwType, (LPBYTE)&g_ctrlCaction, &pcbData);
+	// DWORD dispos=0, pdwType=0, pcbData=MAX_PATH*sizeof(TCHAR);
+	// IFV(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos));
+	// if (ERROR_SUCCESS!=RegQueryValueEx(conKey, NULL, 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
+		// if (GetSystemDirectory(sysDir,MAX_PATH) && 0<_stprintf(cmd, _T("%s\\cmd.exe"), sysDir)) {
+			// RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR));
+		// }
+	// }
+	// ::memcpy(g_savedCmd, cmd, pcbData);
+	// pcbData=MAX_PATH*sizeof(TCHAR);
+	// if (ERROR_SUCCESS==RegQueryValueEx(conKey, _T("LinePattern"), 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
+		// ::memcpy(g_savedLine, cmd, pcbData);
+	// }
+	// pcbData = sizeof(g_ctrlCaction);
+	// pdwType = REG_DWORD;
+	// RegQueryValueEx(conKey, _T("CtrlCAction"), 0, &pdwType, (LPBYTE)&g_ctrlCaction, &pcbData);
+
 	g_staticWnd.SetCtrlCAction(g_ctrlCaction);
 	g_tbData.hClient=g_staticWnd.Create(g_nppData._nppHandle, g_savedCmd, g_savedLine);
 	if (!g_tbData.hClient) {
@@ -217,10 +262,10 @@ void setInfo(NppData nppData)
 		if (GetSystemDirectory(sysDir,MAX_PATH) && 0<_stprintf(cmd, _T("%s\\cmd.exe"), sysDir)) {
 			::memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
 			g_tbData.hClient=g_staticWnd.Create(g_nppData._nppHandle, g_savedCmd, g_savedLine);
-			RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)g_savedCmd, _tcslen(g_savedCmd)*sizeof(TCHAR));
+			// RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)g_savedCmd, _tcslen(g_savedCmd)*sizeof(TCHAR));
 		}
 	}
-	IFV(ERROR_SUCCESS!=RegCloseKey(conKey));
+	// IFV(ERROR_SUCCESS!=RegCloseKey(conKey));
 	IFV(!g_tbData.hClient);
 	g_tbData.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 	::GetModuleFileNameA((HINSTANCE)g_hModule, modName, MAX_PATH);
