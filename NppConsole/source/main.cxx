@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resources.hxx"
 
 #include <shlwapi.h>
+#include <shlobj.h>
+#include <string>
 
 #define PLG_FUNCS_COUNT 4
 #define NUMDIGIT        64
@@ -111,8 +113,35 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			else {
 				CheckDlgButton(hwndDlg, IDC_RADIO_RESTR, BST_CHECKED);
 			}
+
+            std::string version;
+            version = "<a>";
+            version += VER_STRING;
+            version += "</a>";
+            SetDlgItemTextA(hwndDlg, IDC_STC_VER, version.c_str());
 		}
 			return TRUE;
+
+        case WM_NOTIFY:
+        {
+            switch (((LPNMHDR)lParam)->code)
+            {
+                case NM_CLICK:
+                case NM_RETURN:
+                {
+                    PNMLINK pNMLink = (PNMLINK)lParam;
+                    LITEM   item    = pNMLink->item;
+                    HWND ver = GetDlgItem( hwndDlg, IDC_STC_VER );
+
+                    if ((((LPNMHDR)lParam)->hwndFrom == ver) && (item.iLink == 0))
+                        ShellExecute(hwndDlg, TEXT("open"), TEXT("https://github.com/VinsWorldcom/nppConsole"), NULL, NULL, SW_SHOWNORMAL);
+
+                    return TRUE;
+                }
+            }
+            break;
+        }
+
 		case WM_COMMAND : 
 			switch (wParam) {
 				case IDC_BUTTON_APPLY:
