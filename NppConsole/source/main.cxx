@@ -80,10 +80,10 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 		_T("String after command line of form ${parameters}, will be sent as parameters.\r\n")
 		_T("Pattern for line number search after file name: ${LINE}\r\n")
 		_T("\r\n")
-        _T("C:\\Windows\\System32\\cmd.exe\r\n")
-        _T("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\r\n")
-        _T("C:\\Windows\\System32\\wsl.exe\r\n")
-		_T("\r\n")
+        // _T("C:\\Windows\\System32\\cmd.exe\r\n")
+        // _T("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\r\n")
+        // _T("C:\\Windows\\System32\\wsl.exe\r\n")
+		// _T("\r\n")
         _T("With best regards, M.Pobojnyj (mpoboyny@web.de)\r\n");
 	static int xScreen=GetSystemMetrics(SM_CXSCREEN);
 	static int yScreen=GetSystemMetrics(SM_CYSCREEN);
@@ -94,7 +94,6 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			HWND aboutWnd = GetDlgItem(hwndDlg, IDC_EDIT_ABOUT);
 			IFR(!aboutWnd, TRUE);
 			IFR(!SetWindowText(aboutWnd, aboutText), TRUE);
-			SetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_CMD), g_savedCmd);
 			if (_tcslen(g_savedLine)) {
 				SetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_LINE), g_savedLine);
 			}
@@ -113,6 +112,13 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			else {
 				CheckDlgButton(hwndDlg, IDC_RADIO_RESTR, BST_CHECKED);
 			}
+
+            HWND command = GetDlgItem( hwndDlg, IDC_CBO_COMMAND );
+
+            SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\cmd.exe" ) );
+            SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" ) );
+            SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\wsl.exe" ) );
+            SendMessage( command, CB_SELECTSTRING, -1, ( LPARAM )g_savedCmd );
 
             std::string version;
             version = "<a>";
@@ -156,7 +162,8 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 						else memset(g_savedLine, 0, MAX_PATH*sizeof(TCHAR));
 					// }
 					memset(cmd, 0, MAX_PATH*sizeof(TCHAR));
-					cc=GetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_CMD), cmd, MAX_PATH);
+                    int sel = ( int )::SendMessage( GetDlgItem(hwndDlg, IDC_CBO_COMMAND), CB_GETCURSEL, 0, 0 );
+                    cc=SendMessage( GetDlgItem(hwndDlg, IDC_CBO_COMMAND), CB_GETLBTEXT, sel, ( LPARAM )cmd );
 					// if (ERROR_SUCCESS==RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
 						if (cc>0) memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
 						else memset(g_savedCmd, 0, MAX_PATH*sizeof(TCHAR));
