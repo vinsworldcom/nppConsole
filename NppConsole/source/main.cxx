@@ -53,7 +53,7 @@ bool            g_consoleRestart = true;
 
 toolbarIcons	g_ToolBar={0};
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 BOOL APIENTRY DllMain( HANDLE hModule, DWORD  reasonForCall, LPVOID lpReserved )
 {
 	g_hModule = hModule;
@@ -72,7 +72,7 @@ BOOL APIENTRY DllMain( HANDLE hModule, DWORD  reasonForCall, LPVOID lpReserved )
 	return TRUE;
 }
 
-INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, 
+INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 							WPARAM wParam, LPARAM lParam)
 {
 	static LPCTSTR aboutText=_T("NppConsole is a workaround for windows console.\r\n")
@@ -153,7 +153,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
             break;
         }
 
-		case WM_COMMAND : 
+		case WM_COMMAND :
 			switch (wParam) {
 				case IDC_BUTTON_APPLY:
 				{
@@ -211,7 +211,7 @@ void menuRestart()
 
 void AboutPlugin()
 {
-	DialogBoxParam((HINSTANCE)g_hModule,  MAKEINTRESOURCE(IDD_DIALOG_ABOUT), 
+	DialogBoxParam((HINSTANCE)g_hModule,  MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
 				g_nppData._nppHandle, DialogProc, 0);
 }
 
@@ -229,7 +229,7 @@ void ShowPlugin()
 		if (!wndFlag) {
 			::SendMessage(g_nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&g_tbData);
 			wndFlag=true;
-			
+
 		}
 		g_staticWnd.Show();
 		::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, MF_CHECKED);
@@ -243,9 +243,9 @@ void pluginCleanUp()
 {
     TCHAR buf[NUMDIGIT];
 
-    ::WritePrivateProfileString( sectionName, iniKeyCommand, 
+    ::WritePrivateProfileString( sectionName, iniKeyCommand,
                                  g_savedCmd, iniFilePath);
-    ::WritePrivateProfileString( sectionName, iniKeyLinePattern, 
+    ::WritePrivateProfileString( sectionName, iniKeyLinePattern,
                                  g_savedLine, iniFilePath);
     _itot_s( g_ctrlCaction, buf, NUMDIGIT, 10 );
     ::WritePrivateProfileString( sectionName, iniKeyCtrlCAction, buf,
@@ -254,7 +254,7 @@ void pluginCleanUp()
     if (g_ToolBar.hToolbarBmp) ::DeleteObject(g_ToolBar.hToolbarBmp);
 }
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 void setInfo(NppData nppData)
 {
 	SLog(__FUNCTION__);
@@ -273,9 +273,9 @@ void setInfo(NppData nppData)
     PathAppend( iniFilePath, configFileName );
     g_ctrlCaction = ::GetPrivateProfileInt( sectionName, iniKeyCtrlCAction,
                                             0, iniFilePath );
-    ::GetPrivateProfileString( sectionName, iniKeyCommand, TEXT("C:\\Windows\\System32\\cmd.exe"), 
+    ::GetPrivateProfileString( sectionName, iniKeyCommand, TEXT("C:\\Windows\\System32\\cmd.exe"),
                                g_savedCmd, MAX_PATH, iniFilePath );
-    ::GetPrivateProfileString( sectionName, iniKeyLinePattern, TEXT(""), 
+    ::GetPrivateProfileString( sectionName, iniKeyLinePattern, TEXT(""),
                                g_savedLine, MAX_PATH, iniFilePath );
 
 	// HKEY conKey=NULL;
@@ -312,20 +312,20 @@ void setInfo(NppData nppData)
 	::GetModuleFileNameA((HINSTANCE)g_hModule, modName, MAX_PATH);
 	g_tbData.pszModuleName = modName;
     g_tbData.dlgID = g_showWndInd;
-	g_tbData.pszName=g_plgName;	
+	g_tbData.pszName=g_plgName;
 	g_tbData.hIconTab = ( HICON )::LoadImage( (HINSTANCE)g_hModule,
 		MAKEINTRESOURCE( IDI_APPICON ), IMAGE_ICON, 0, 0,
 		LR_LOADTRANSPARENT );
 
 }
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 const TCHAR * getName()
 {
 	return g_plgName;
 }
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 FuncItem * getFuncsArray(int *count)
 {
 	g_funcItem[2]._pFunc=menuRestart;
@@ -344,7 +344,7 @@ FuncItem * getFuncsArray(int *count)
 	return g_funcItem;
 }
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 void beNotified(SCNotification *notifyCode)
 {
 	if (notifyCode->nmhdr.hwndFrom == g_nppData._nppHandle) {
@@ -357,14 +357,14 @@ void beNotified(SCNotification *notifyCode)
 
 }
 
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	return TRUE;
 }
 
 #ifdef UNICODE
-extern "C" __declspec(dllexport) 
+extern "C" __declspec(dllexport)
 BOOL isUnicode()
 {
 	return TRUE;
