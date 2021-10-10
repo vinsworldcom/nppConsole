@@ -118,7 +118,12 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
             SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\cmd.exe" ) );
             SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" ) );
             SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )TEXT( "C:\\Windows\\System32\\wsl.exe" ) );
-            SendMessage( command, CB_SELECTSTRING, -1, ( LPARAM )g_savedCmd );
+            int err = (int)::SendMessage( command, CB_SELECTSTRING, -1, ( LPARAM )g_savedCmd );
+            if ( err == CB_ERR )
+            {
+                SendMessage( command, CB_ADDSTRING, 0, ( LPARAM )g_savedCmd );
+                SendMessage( command, CB_SELECTSTRING, -1, ( LPARAM )g_savedCmd );
+            }
 
             std::string version;
             version = "<a>";
