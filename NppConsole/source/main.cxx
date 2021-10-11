@@ -80,10 +80,6 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 		_T("String after command line of form ${parameters}, will be sent as parameters.\r\n")
 		_T("Pattern for line number search after file name: ${LINE}\r\n")
 		_T("\r\n")
-        // _T("C:\\Windows\\System32\\cmd.exe\r\n")
-        // _T("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\r\n")
-        // _T("C:\\Windows\\System32\\wsl.exe\r\n")
-		// _T("\r\n")
         _T("With best regards, M.Pobojnyj (mpoboyny@web.de)\r\n");
 	static int xScreen=GetSystemMetrics(SM_CXSCREEN);
 	static int yScreen=GetSystemMetrics(SM_CYSCREEN);
@@ -157,22 +153,17 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			switch (wParam) {
 				case IDC_BUTTON_APPLY:
 				{
-					// HKEY conKey=NULL;
-					// DWORD dispos=0;
 					TCHAR cmd[MAX_PATH]={0};
 					int cc=GetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_LINE), cmd, MAX_PATH);
-					// IFR(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos), TRUE);
-					// if (ERROR_SUCCESS==RegSetValueEx(conKey, _T("LinePattern"), 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
-						if (cc>0) memcpy(g_savedLine, cmd, MAX_PATH*sizeof(TCHAR));
-						else memset(g_savedLine, 0, MAX_PATH*sizeof(TCHAR));
-					// }
+                    if (cc>0) memcpy(g_savedLine, cmd, MAX_PATH*sizeof(TCHAR));
+                    else memset(g_savedLine, 0, MAX_PATH*sizeof(TCHAR));
 					memset(cmd, 0, MAX_PATH*sizeof(TCHAR));
+
                     int sel = ( int )::SendMessage( GetDlgItem(hwndDlg, IDC_CBO_COMMAND), CB_GETCURSEL, 0, 0 );
                     cc=SendMessage( GetDlgItem(hwndDlg, IDC_CBO_COMMAND), CB_GETLBTEXT, sel, ( LPARAM )cmd );
-					// if (ERROR_SUCCESS==RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR))) {
-						if (cc>0) memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
-						else memset(g_savedCmd, 0, MAX_PATH*sizeof(TCHAR));
-					// }
+                    if (cc>0) memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
+                    else memset(g_savedCmd, 0, MAX_PATH*sizeof(TCHAR));
+
 					SLog("g_savedCmd: "<<g_savedCmd);
 					SLog("g_savedLine: "<<g_savedLine);
 					if (BST_CHECKED == IsDlgButtonChecked(hwndDlg, IDC_RADIO_IGN)) {
@@ -184,11 +175,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 					else {
 						g_ctrlCaction = CStaticWnd::CTRL_C_RECREATE;
 					}
-					// if (ERROR_SUCCESS!=RegSetValueEx(conKey, _T("CtrlCAction"), 0, REG_DWORD, (LPBYTE)&g_ctrlCaction, sizeof(g_ctrlCaction))) {
-						// g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
-					// }
 					g_staticWnd.SetCtrlCAction(g_ctrlCaction);
-					// RegCloseKey(conKey);
 					IFR(!g_staticWnd.Restart(g_savedCmd, g_savedLine), TRUE);
 				}
 					return TRUE;
@@ -278,24 +265,7 @@ void setInfo(NppData nppData)
     ::GetPrivateProfileString( sectionName, iniKeyLinePattern, TEXT(""),
                                g_savedLine, MAX_PATH, iniFilePath );
 
-	// HKEY conKey=NULL;
 	TCHAR cmd[MAX_PATH]={0}, sysDir[MAX_PATH]={0};
-	// DWORD dispos=0, pdwType=0, pcbData=MAX_PATH*sizeof(TCHAR);
-	// IFV(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\NppConsole"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &conKey, &dispos));
-	// if (ERROR_SUCCESS!=RegQueryValueEx(conKey, NULL, 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
-		// if (GetSystemDirectory(sysDir,MAX_PATH) && 0<_stprintf(cmd, _T("%s\\cmd.exe"), sysDir)) {
-			// RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)cmd, _tcslen(cmd)*sizeof(TCHAR));
-		// }
-	// }
-	// ::memcpy(g_savedCmd, cmd, pcbData);
-	// pcbData=MAX_PATH*sizeof(TCHAR);
-	// if (ERROR_SUCCESS==RegQueryValueEx(conKey, _T("LinePattern"), 0, &pdwType, (LPBYTE)cmd, &pcbData)) {
-		// ::memcpy(g_savedLine, cmd, pcbData);
-	// }
-	// pcbData = sizeof(g_ctrlCaction);
-	// pdwType = REG_DWORD;
-	// RegQueryValueEx(conKey, _T("CtrlCAction"), 0, &pdwType, (LPBYTE)&g_ctrlCaction, &pcbData);
-
 	g_staticWnd.SetCtrlCAction(g_ctrlCaction);
 	g_tbData.hClient=g_staticWnd.Create(g_nppData._nppHandle, g_savedCmd, g_savedLine);
 	if (!g_tbData.hClient) {
@@ -303,10 +273,8 @@ void setInfo(NppData nppData)
 		if (GetSystemDirectory(sysDir,MAX_PATH) && 0<_stprintf(cmd, _T("%s\\cmd.exe"), sysDir)) {
 			::memcpy(g_savedCmd, cmd, MAX_PATH*sizeof(TCHAR));
 			g_tbData.hClient=g_staticWnd.Create(g_nppData._nppHandle, g_savedCmd, g_savedLine);
-			// RegSetValueEx(conKey, NULL, 0, REG_SZ, (LPBYTE)g_savedCmd, _tcslen(g_savedCmd)*sizeof(TCHAR));
 		}
 	}
-	// IFV(ERROR_SUCCESS!=RegCloseKey(conKey));
 	IFV(!g_tbData.hClient);
 	g_tbData.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
 	::GetModuleFileNameA((HINSTANCE)g_hModule, modName, MAX_PATH);
