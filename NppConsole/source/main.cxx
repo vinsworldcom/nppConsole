@@ -80,7 +80,8 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 		_T("String after command line of form ${parameters}, will be sent as parameters.\r\n")
 		_T("Pattern for line number search after file name: ${LINE}\r\n")
 		_T("\r\n")
-        _T("With best regards, M.Pobojnyj (mpoboyny@web.de)\r\n");
+        _T("With best regards, M.Pobojnyj (mpoboyny@web.de)\r\n")
+        _T("Version 1.2.1.1 and newer - VinsWorldcom\r\n");
 	static int xScreen=GetSystemMetrics(SM_CXSCREEN);
 	static int yScreen=GetSystemMetrics(SM_CYSCREEN);
 
