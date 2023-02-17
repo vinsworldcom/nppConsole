@@ -36,6 +36,7 @@ const TCHAR sectionName[]       = TEXT( "Console" );
 const TCHAR iniKeyCommand[]     = TEXT( "Command" );
 const TCHAR iniKeyLinePattern[] = TEXT( "LinePattern" );
 const TCHAR iniKeyCtrlCAction[] = TEXT( "CtrlCAction" );
+const TCHAR iniKeyRaisePanel[]  = TEXT( "PanelRaiseorToggle" );
 TCHAR iniFilePath[MAX_PATH];
 
 HANDLE			g_hModule=NULL;
@@ -50,6 +51,7 @@ TCHAR			g_savedCmd[MAX_PATH]={0};
 TCHAR			g_savedLine[MAX_PATH]={0};
 int				g_ctrlCaction = CStaticWnd::CTRL_C_IGNORE;
 bool            g_consoleRestart = true;
+bool            g_RaisePanel = false;
 
 toolbarIcons	g_ToolBar={0};
 
@@ -109,6 +111,8 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 			else {
 				CheckDlgButton(hwndDlg, IDC_RADIO_RESTR, BST_CHECKED);
 			}
+            SendMessage( GetDlgItem( hwndDlg, IDC_CHK_PANELTOGGLE ), BM_SETCHECK,
+                         ( WPARAM )( g_RaisePanel ? 1 : 0 ), 0 );
 
             HWND command = GetDlgItem( hwndDlg, IDC_CBO_COMMAND );
 
@@ -152,6 +156,18 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 
 		case WM_COMMAND :
 			switch (wParam) {
+                case IDC_CHK_PANELTOGGLE:
+                {
+                    int check = ( int )::SendMessage( GetDlgItem( hwndDlg, IDC_CHK_PANELTOGGLE ),
+                                                      BM_GETCHECK, 0, 0 );
+
+                    if ( check & BST_CHECKED )
+                        g_RaisePanel = true;
+                    else
+                        g_RaisePanel = false;
+                    return TRUE;
+                }
+
 				case IDC_BUTTON_APPLY:
 				{
 					TCHAR cmd[MAX_PATH]={0};
@@ -209,7 +225,7 @@ void ShowPlugin()
 	IFV(!g_nppData._nppHandle);
 	// HMENU hMenu = ::GetMenu(g_nppData._nppHandle);
 	// UINT state = ::GetMenuState(hMenu, g_funcItem[g_showWndInd]._cmdID, MF_BYCOMMAND);
-	if (g_staticWnd.isWindowVisible()) {
+	if (g_staticWnd.isWindowVisible() && !(g_RaisePanel)) {
 		g_staticWnd.Hide();
 		::SendMessage(g_nppData._nppHandle, NPPM_SETMENUITEMCHECK, g_funcItem[g_showWndInd]._cmdID, MF_UNCHECKED);
 	}
@@ -238,6 +254,8 @@ void pluginCleanUp()
     _itot_s( g_ctrlCaction, buf, NUMDIGIT, 10 );
     ::WritePrivateProfileString( sectionName, iniKeyCtrlCAction, buf,
                                  iniFilePath );
+    ::WritePrivateProfileString( sectionName, iniKeyRaisePanel,
+                                 g_RaisePanel ? TEXT( "1" ) : TEXT( "0" ), iniFilePath );
 
     if (g_ToolBar.hToolbarBmp) ::DeleteObject(g_ToolBar.hToolbarBmp);
 }
@@ -260,6 +278,8 @@ void setInfo(NppData nppData)
     // make your plugin config file full file path name
     PathAppend( iniFilePath, configFileName );
     g_ctrlCaction = ::GetPrivateProfileInt( sectionName, iniKeyCtrlCAction,
+                                            0, iniFilePath );
+    g_RaisePanel  = ::GetPrivateProfileInt( sectionName, iniKeyRaisePanel,
                                             0, iniFilePath );
     ::GetPrivateProfileString( sectionName, iniKeyCommand, TEXT("C:\\Windows\\System32\\cmd.exe"),
                                g_savedCmd, MAX_PATH, iniFilePath );
