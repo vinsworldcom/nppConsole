@@ -168,7 +168,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
                     return TRUE;
                 }
 
-				case IDC_BUTTON_APPLY:
+				case IDOK :
 				{
 					TCHAR cmd[MAX_PATH]={0};
 					int cc=GetWindowText(GetDlgItem(hwndDlg, IDC_EDIT_LINE), cmd, MAX_PATH);
@@ -194,11 +194,12 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg,
 					}
 					g_staticWnd.SetCtrlCAction(g_ctrlCaction);
 					IFR(!g_staticWnd.Restart(g_savedCmd, g_savedLine), TRUE);
+
+					::EndDialog(hwndDlg, IDOK);
 				}
 					return TRUE;
-				case IDOK :
 				case IDCANCEL :
-					::EndDialog(hwndDlg, IDOK);
+					::EndDialog(hwndDlg, IDCANCEL);
 					return TRUE;
 				default:
 					break;
