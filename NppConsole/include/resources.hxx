@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /* VERSION DEFINITIONS */
 #define VER_MAJOR   1
 #define VER_MINOR   2
-#define VER_RELEASE 7
+#define VER_RELEASE 8
 #define VER_BUILD   1
 #define VER_STRING  STR(VER_MAJOR) "." STR(VER_MINOR) "." STR(VER_RELEASE) "." STR(VER_BUILD)
 
@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define IDC_EDIT_ABOUT					1001
 #define IDC_EDIT_LINE					1003
-#define IDC_BUTTON_APPLY				1004
 #define IDC_RADIO_IGN					1005
 #define IDC_RADIO_RESTR					1006
 #define IDC_RADIO_PROCESS				1007
